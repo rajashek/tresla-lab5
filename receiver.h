@@ -29,6 +29,8 @@
 
 #include <pthread.h>
 
+#include <queue>
+
 #include "define.h"
 
 using namespace std;
@@ -38,5 +40,13 @@ void init_receiver();
 void set_ack(unsigned char **chunks_ack, unsigned long long chunk_id, bool is_ack);
 bool is_ack(unsigned char **chunks_ack, unsigned long long chunk_id);
 
-#endif /* defined(__fscp__receiver__) */
+struct receiver_thread_parameter {
+    unsigned long long *total_chunks;
+    unsigned char **chunk_cache;
+    unsigned char **chunks_ack;
+    FILE *file;
+};
 
+void *receiver_thread(void *params);
+
+#endif /* defined(__fscp__receiver__) */

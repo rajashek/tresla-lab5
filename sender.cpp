@@ -40,12 +40,13 @@ void init_sender(char *host, FILE *file, long file_size, const char *file_name, 
     total_chunks = (file_size / FSCP_UDP_DATA_BYTES) + ((file_size % FSCP_UDP_DATA_BYTES > 0)?1:0);
     fprintf(stdout, "  Size of chunks: %d Bytes\n", FSCP_UDP_DATA_BYTES);
     fprintf(stdout, "Number of chunks: %llu (0x%.6llx)\n", total_chunks, total_chunks);
-    
+
     // Chunk cache declaration
-    unsigned char *chunk_cache[total_chunks];
+    unsigned char **chunk_cache;
+    chunk_cache = (unsigned char **) malloc(sizeof(*chunk_cache) * total_chunks);
     pthread_mutex_t *chunk_cache_mutex;
     chunk_cache_mutex = (pthread_mutex_t *) malloc(sizeof(pthread_mutex_t) * total_chunks);
-    
+
     #ifdef _DEBUG
     fprintf(stdout, "          Status: Connecting\n");
     #else
@@ -81,9 +82,9 @@ void init_sender(char *host, FILE *file, long file_size, const char *file_name, 
         fprintf(stderr, "Error: cannot set SO_RCVBUF in init_sender()\n");
         exit(2);
     }
-
+    
     tv.tv_sec = 0;
-    tv.tv_usec = 300*1000;
+    tv.tv_usec = 250*1000L;
     setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (struct timeval *)&tv, sizeof(struct timeval));
 
     // Bind socket
@@ -154,9 +155,12 @@ void init_sender(char *host, FILE *file, long file_size, const char *file_name, 
     params.chunk_cache = &chunk_cache[0];
     params.chunk_cache_mutex = &chunk_cache_mutex;
     
-//    params.chunk_cache_mutex = &chunk_cache_mutex[0];
     pthread_t thread;
-    if(pthread_create(&thread , NULL,  ack_receiver_thread, (void*) &params) < 0) {
+    pthread_attr_t attr;
+    pthread_attr_init(&attr);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+    
+    if(pthread_create(&thread , &attr,  ack_receiver_thread, (void*) &params) < 0) {
         fprintf(stderr, "Error: Can not create a thread for the ack_receiver_thread in init_sender()\n");
         exit(4);
     }

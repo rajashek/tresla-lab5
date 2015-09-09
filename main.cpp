@@ -29,7 +29,7 @@ int main(int argc, const char * argv[]) {
     long file_size = -1;
     char *file_path, *file_name;
     struct stat file_stat;
-    unsigned char required_acks = FSCP_DEFAULT_NUMBERS_OF_ACK;
+    unsigned char required_acks = FSCP_DEFAULT_NUMBER_OF_ACKS;
     
     if (argc <= 1) {
         print_usage();
@@ -38,7 +38,7 @@ int main(int argc, const char * argv[]) {
     
     // Increase the priority of the process (max priority is -20, min is 19)
     if (setpriority(PRIO_PROCESS, 0, -15) < 0) {
-        fprintf(stderr, "** It is recommend to run as root! **\n");
+        fprintf(stderr, "** It is recommend to run as a superuser! **\n");
     }
 
     if (strcmp("-r", argv[1]) == 0) {
@@ -80,7 +80,7 @@ int main(int argc, const char * argv[]) {
                 if ((strcmp("-ack", argv[6]) == 0) && (argc >= 8)) {
                     required_acks = atoi(argv[7]);
                     if (required_acks == 0) {
-                        required_acks = FSCP_DEFAULT_NUMBERS_OF_ACK;
+                        required_acks = FSCP_DEFAULT_NUMBER_OF_ACKS;
                     }
                 }
                 else {
