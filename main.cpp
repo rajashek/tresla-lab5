@@ -42,8 +42,25 @@ int main(int argc, const char * argv[]) {
     }
 
     if (strcmp("-r", argv[1]) == 0) {
+        
         //Begin receiving the file
-        init_receiver();
+        if (argc >= 3) {
+            
+            if ((argc >= 4) && (strcmp("-f", argv[2]) == 0)) {
+                file_name = (char *) malloc(sizeof(char) * (strlen(argv[3]) + 1));
+                strcpy(file_name, argv[3]);
+                init_receiver(file_name);
+            }
+            else {
+                print_usage();
+                exit(1);
+            }
+        }
+        else {
+            file_name = strdup("");
+            init_receiver(file_name);
+        }
+        
     }
     else if (strcmp("-s", argv[1]) == 0) {
         if (argc >= 6) {
@@ -68,7 +85,7 @@ int main(int argc, const char * argv[]) {
                 stat(argv[5], &file_stat);
                 file_size = file_stat.st_size;
                 file_path = strdup(argv[5]);
-                file_name = basename(file_path);
+                file_name = strdup(basename(file_path));
                 
             }
             else {
@@ -110,6 +127,7 @@ void print_usage() {
     fprintf(stderr, "Error: invalid options\n");
     fprintf(stderr, "Usage:\n");
     fprintf(stderr, "  fscp -r\n");
+    fprintf(stderr, "  fscp -r [-f filename]\n");
     fprintf(stderr, "  fscp -s -h host -f filename\n");
     fprintf(stderr, "  fscp -s -h host -f filename [-ack numbers_of_ack]\n");
     fprintf(stderr, "    increasing numbers of acknowledgement will help improve\n");

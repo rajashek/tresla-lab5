@@ -5,7 +5,7 @@
 
 #include "receiver.h"
 
-void init_receiver() {
+void init_receiver(char *file_name) {
     
     int sockfd, i;
     struct sockaddr_in sndraddr, rcvraddr;
@@ -15,7 +15,6 @@ void init_receiver() {
     unsigned char buffer[UDP_DATA_MAX_LENGTH];
     
     long file_size = 0L;
-    char *file_name;
     unsigned char required_acks = FSCP_DEFAULT_NUMBER_OF_ACKS;
     
     unsigned long long chunk_id = 0L, total_chunks, chunks_ack_count = 0L;
@@ -77,8 +76,10 @@ void init_receiver() {
     // Copy file information from the Chunk ID = 0
     memcpy(&file_size, buffer+FSCP_UDP_ID_BYTES, sizeof(file_size));
     memcpy(&required_acks, buffer+FSCP_UDP_ID_BYTES+sizeof(file_size), 1);
-    file_name = (char *) malloc(sizeof(char) * (recvlen-(FSCP_UDP_ID_BYTES+sizeof(file_size)+1)));
-    memcpy(file_name, buffer+FSCP_UDP_ID_BYTES+sizeof(file_size)+1, (recvlen-(FSCP_UDP_ID_BYTES+sizeof(file_size)+1)));
+    if (strlen(file_name) == 0) {
+        file_name = (char *) malloc(sizeof(char) * (recvlen-(FSCP_UDP_ID_BYTES+sizeof(file_size)+1)));
+        memcpy(file_name, buffer+FSCP_UDP_ID_BYTES+sizeof(file_size)+1, (recvlen-(FSCP_UDP_ID_BYTES+sizeof(file_size)+1)));
+    }
 
     total_chunks = (file_size / FSCP_UDP_DATA_BYTES) + ((file_size % FSCP_UDP_DATA_BYTES > 0)?1:0);
 
