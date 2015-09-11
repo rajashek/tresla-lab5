@@ -4,7 +4,7 @@ echo "Sender"
 date1=$(date +"%s")
 date
 echo "sending data $2"
-./fscp -s -h $1 -f $2 -ack 1 >/dev/null 2>&1 
+./fscp -s -h $1 -f $2 -ack 3 >/dev/null 2>&1 
 echo "receiving data $3"
 ./fscp -r -f $3 > /dev/null 2>&1 
 date2=$(date +"%s")
